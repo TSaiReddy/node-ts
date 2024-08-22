@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { USER_ROLES } from "../constants/defaultKeys";
 
 export interface IUser extends Document {
   role: string;
@@ -15,10 +16,10 @@ const userSchema: Schema = new Schema({
     required: true,
     lowercase: true,
   },
-  role: String,
   last_name: String,
   password: { minLength: 8, type: String },
   first_name: { type: String, required: true },
+  role: { type: String, required: true, enum: USER_ROLES },
 });
 
 const User = mongoose.model<IUser>("User", userSchema);

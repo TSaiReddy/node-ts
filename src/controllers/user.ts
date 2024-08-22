@@ -6,10 +6,13 @@ import bcrypt from "bcrypt";
 import User from "../models/user";
 
 import { loginValidator, signupValidator } from "../validators/user";
-import { generateAccessToken } from "../helpers/jwtToken";
-import { hashPassword } from "../helpers/utils";
+import AuthService from "../helpers/AuthService";
 
-export async function login(req: Request, res: Response, next: NextFunction) {
+export async function login(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
     const { email, password } = await loginValidator.validateAsync(req.body);
 
@@ -29,7 +32,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       });
 
     //Creating JWT Access Token
-    const access_token = generateAccessToken({
+    const access_token = AuthService.generateToken({
       _id: String(user._id),
       email: user.email,
     });
@@ -44,25 +47,26 @@ export async function register(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<void> {
   try {
-    const { first_name, last_name, email, password } =
+    const { first_name, last_name, email, password, role } =
       await signupValidator.validateAsync(req.body);
 
     const user = await User.findOne({ email });
     if (user) return next({ status_code: 400, message: "Email Already Exist" });
 
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await AuthService.hashPassword(password);
     const newUser = new User({
       password: hashedPassword,
       first_name,
       last_name,
       email,
+      role,
     });
 
     const savedUser = await newUser.save();
 
-    const access_token = generateAccessToken({
+    const access_token = AuthService.generateToken({
       _id: String(savedUser._id),
       email: savedUser.email,
     });
