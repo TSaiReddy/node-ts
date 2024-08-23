@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { writeLog } from "../logger/logger";
 
 function getStatus(err: any): number {
   if (err.code === 11000) return 409;
@@ -15,6 +16,8 @@ export const errorHandler = (
 ) => {
   const status = getStatus(err);
   const errorMessage = err.message || "Internal Server Error";
+
+  writeLog("error", err.message);
 
   return res.status(status).json({ message: errorMessage });
 };

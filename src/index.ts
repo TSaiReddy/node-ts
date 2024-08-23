@@ -1,4 +1,5 @@
 // Packages
+import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -8,13 +9,22 @@ import { apiRoutes } from "./api/api";
 import { databaseConnection } from "./lib/database";
 import { errorHandler } from "./middleware/errorMiddleware";
 
-const app: Application = express();
+export const app: Application = express();
 dotenv.config();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Adds Security Headers
+const corsOptions = {
+  origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: "Content-Type, Authorization",
+};
+
+// CORS middleware
+app.use(cors(corsOptions));
+
+// Security Headers
 app.use(helmet());
 app.use(helmet.permittedCrossDomainPolicies({ permittedPolicies: "none" }));
 
